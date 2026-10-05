@@ -178,6 +178,7 @@ class VegaClient:
               name
               severity
               state
+              mode
               frequencyCron
               lookBackSeconds
               mitreTactics

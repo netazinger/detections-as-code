@@ -16,7 +16,16 @@ DEFAULT_STATE: DetectionState = DetectionState.ENABLED
 
 VALID_STATES: frozenset[str] = frozenset(s.value for s in DetectionState)
 
-DEFAULT_TYPE: str = "ALERT"
+
+class DetectionMode(str, Enum):
+    ALERT = "ALERT"
+    EVIDENCE = "EVIDENCE"
+    MONITOR = "MONITOR"
+
+
+DEFAULT_MODE: DetectionMode = DetectionMode.ALERT
+
+VALID_MODES: frozenset[str] = frozenset(m.value for m in DetectionMode)
 
 MANDATORY_FIELDS: tuple[str, ...] = (
     "id",
@@ -70,10 +79,19 @@ REMOVED_FIELDS: dict[str, str] = {
         "It has no single successor, so pick by intent: "
         "'deduplicationFields' folds repeat alerts into an open one across "
         "runs, 'groupingField' splits a single noisy run by a field. "
+        "Moving over is a behaviour change rather than a rename - "
+        "'groupingFields' never affected how alerts were produced, and its "
+        "successors do, so check the value still makes sense. "
         "See docs/fields.md"
     ),
     "groupingDurationSeconds": (
         "Use 'deduplicationWindowSeconds' - the same window, under the name "
-        "the API now uses"
+        "the API now uses. Moving over is a behaviour change rather than a "
+        "rename - 'groupingDurationSeconds' never affected how alerts were "
+        "produced, and its successor does, so check the value still makes sense"
+    ),
+    "type": (
+        "Use 'mode' - the same setting, under the name the API now uses; "
+        "'signal' is now 'evidence'"
     ),
 }

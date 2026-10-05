@@ -113,6 +113,7 @@ _UPDATE_DIFF_FIELDS = (
     "name",
     "severity",
     "state",
+    "mode",
     "lookBackSeconds",
     "mitreTechniques",
     "logicDescription",

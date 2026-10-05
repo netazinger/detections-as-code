@@ -23,6 +23,12 @@ query: |-
 
 # ----- OPTIONAL -----
 
+# mode = how the detection's alerts take part in triage and escalation.
+# alert    - AI triage + correlation, can open an incident on its own (default)
+# evidence - skips AI triage, escalates only when correlation places it in an incident
+# monitor  - recorded only, never creates or joins an incident
+mode: "alert"                                    # alert | evidence | monitor
+
 # logicDescription = literal description of what the query matches
 # (data source, events, fields). 2-4 sentences.
 logicDescription: "Matches <data source> events where <conditions>. Two-to-four sentences describing the query literally."

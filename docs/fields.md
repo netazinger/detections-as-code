@@ -113,6 +113,31 @@ introduce risk.
 state: "test_mode"
 ```
 
+### `mode` - optional, string, default `alert`
+
+How the detection's alerts take part in triage, correlation and incident
+escalation.
+
+- **Type:** string
+- **Required:** no
+- **Default:** `alert`
+- **Allowed values:** `alert`, `evidence`, `monitor` (case-insensitive)
+  - `alert` - alerts go through AI triage and correlation and can escalate to an incident on their own
+  - `evidence` - alerts skip AI triage; they are escalated only when correlation places them in an incident
+  - `monitor` - alerts are recorded only; they skip triage and correlation and never create or join an incident
+- **Note:** `evidence` and `monitor` detections cannot carry triage skills or
+  "Always escalate to incident". Those are UI-managed, so clear them in the
+  Vega UI before switching a detection away from `alert`, or the update is
+  rejected and rolls back its batch.
+- **Note:** the key was briefly called `type` with a `signal` value in the API. The
+  sync rejects `type` so a stale YAML does not silently stay on alert.
+- **Note:** a change of mode on an existing detection is pushed on the next
+  sync and recorded as a new detection version, like any other field.
+
+```yaml
+mode: "evidence"
+```
+
 ### `frequencyCron` - required, string
 
 Schedule on which the detection runs.
@@ -443,6 +468,7 @@ the check runs without tenant access and cannot tell which a YAML will become.
 | `name` length 1-200 | translator | PR red |
 | `severity` is `1-4` or `LOW/MEDIUM/HIGH/CRITICAL` | translator | PR red |
 | `state` is `enabled/disabled/test_mode` (also accepts `test` / `test-mode` aliases) | translator | PR red |
+| `mode` is `alert/evidence/monitor` | translator | PR red |
 | `frequencyCron` is a recognised shape and resolves to 1m-31d | translator | PR red, accepted forms listed |
 | `lookBackSeconds` >= the `frequencyCron` interval and <= 31 days | translator | PR red |
 | `deduplicationWindowSeconds` within 0-86400 | translator | PR red |

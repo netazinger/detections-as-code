@@ -19,6 +19,7 @@ The authoritative reference is [`docs/fields.md`](docs/fields.md). Key constrain
 
 - Severity: int `1-4` (`1=LOW, 2=MEDIUM, 3=HIGH, 4=CRITICAL`).
 - State: `enabled | disabled | test_mode`.
+- Mode: `alert | evidence | monitor`, optional, defaults to `alert`. Evidence and monitor detections cannot carry triage skills or always-escalate, which are UI-managed.
 - `id` regex: `^[a-z0-9][a-z0-9._-]{0,127}$` (UUID v7 satisfies this).
 - `name`: 1-200 characters.
 - `frequencyCron`: an hour/minute interval (`5m`, `1h`, `1h30m`), a 5-field cron, or an `@`-macro. Seconds and days are not interval units - `30s` and `2d` are rejected. Resolved interval must be 1 minute to 31 days.
@@ -32,7 +33,7 @@ The authoritative reference is [`docs/fields.md`](docs/fields.md). Key constrain
 
 `pr_validate.py` runs schema validation only on every PR. It rejects:
 - Missing/empty required fields
-- Invalid `id` regex or `severity`/`state` enum values
+- Invalid `id` regex or `severity`/`state`/`mode` enum values
 - `name` length out of `[1, 200]`
 - A `frequencyCron` shape or interval the scheduler will not accept
 - `lookBackSeconds` below the schedule interval or above 31 days
