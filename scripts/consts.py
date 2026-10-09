@@ -56,6 +56,7 @@ SEVERITY_MAP: dict[Any, str] = {
 # create-only is a warning instead, since the linter has no tenant access and
 # cannot tell which of the two a YAML will become.
 NAME_MAX_LEN: int = 200
+UNCLEARABLE_TEXT_FIELDS: tuple[str, ...] = ("logicDescription", "attackScenario")
 FREQUENCY_INTERVAL_SECONDS_MIN: int = 60
 FREQUENCY_INTERVAL_SECONDS_MAX: int = 31 * 24 * 3600
 LOOKBACK_SECONDS_MAX: int = FREQUENCY_INTERVAL_SECONDS_MAX

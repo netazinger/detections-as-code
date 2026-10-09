@@ -21,6 +21,7 @@ from typing import Any, Callable, Iterable, Literal
 import yaml
 
 from .client import VegaAPIError, VegaClient
+from .consts import UNCLEARABLE_TEXT_FIELDS
 from .translator import (
     frequency_interval_seconds,
     yaml_to_create_input,
@@ -111,8 +112,6 @@ _UPDATE_DIFF_FIELDS = (
     "mode",
     "lookBackSeconds",
     "mitreTechniques",
-    "logicDescription",
-    "attackScenario",
     "references",
     "deduplicationFields",
 )
@@ -124,14 +123,15 @@ _UPDATE_DIFF_ORDERED_FIELDS = (
     "targetFields",
 )
 
-# Neither can be cleared through the API: an omitted value and an explicit null
-# are indistinguishable to the server, so it reads both as "leave unchanged".
-# They are therefore only compared when the YAML actually sets them - otherwise
-# a detection that once had a grouping field would report a diff on every run
-# and never converge.
+# None of these can be cleared through the API: the grouping pair because an
+# omitted value and an explicit null both read as "leave unchanged", the two
+# descriptions because an empty string is rejected. They are therefore only
+# compared when the YAML actually sets them - otherwise a detection that once
+# had a value would report a diff on every run and never converge.
 _UPDATE_DIFF_UNCLEARABLE_FIELDS = (
     "groupingField",
     "groupingThreshold",
+    *UNCLEARABLE_TEXT_FIELDS,
 )
 
 

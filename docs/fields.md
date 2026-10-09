@@ -210,10 +210,13 @@ Literal description of the query's match conditions. Shown in the Vega
 UI during triage to answer "what does this rule match?".
 
 - **Type:** string
-- **Required:** no (defaults to empty string)
+- **Required:** no (created empty when omitted)
 - **Style:** 2-4 sentences. Identify the data source, the event types
   selected, and the fields under evaluation. Restrict the content to
   query mechanics; leave the threat-model framing for `attackScenario`.
+- **Note:** cannot be cleared once set. The API rejects an empty value on
+  update, so removing the key from a YAML leaves the tenant text in place.
+  Replace the text instead of deleting it.
 
 ```yaml
 logicDescription: "Matches AWS CloudTrail ConsoleLogin events where the actor is the account root user."
@@ -225,11 +228,13 @@ Threat-model rationale for the detection. Written from the adversary's
 perspective to answer "why does this match indicate malicious activity?".
 
 - **Type:** string
-- **Required:** no (defaults to empty string)
+- **Required:** no (created empty when omitted)
 - **Style:** 2-4 sentences. State the attacker's objective and explain
   how the matched events advance it. Keep separate from the literal
   query description in `logicDescription`; conflating the two weakens
   both fields.
+- **Note:** cannot be cleared once set, like `logicDescription`. Removing
+  the key leaves the tenant text in place.
 
 ```yaml
 attackScenario: "An adversary with stolen AWS root credentials logs in to the console to perform privileged actions outside normal scoped-IAM access patterns. Root logins are exceedingly rare in healthy environments, so any root login warrants investigation."

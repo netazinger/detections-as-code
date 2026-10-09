@@ -37,6 +37,7 @@ from .consts import (
     NAME_MAX_LEN,
     REMOVED_FIELDS,
     SEVERITY_MAP,
+    UNCLEARABLE_TEXT_FIELDS,
     VALID_STATES,
     VALID_MODES,
     DetectionMode,
@@ -439,4 +440,11 @@ def create_only_warnings(detection: dict[str, Any]) -> list[str]:
 
 
 def yaml_to_update_input(detection: dict[str, Any]) -> dict[str, Any]:
-    return yaml_to_create_input(detection)
+    payload = yaml_to_create_input(detection)
+    # updateDetections rejects an empty description, while createDetections
+    # requires the key, so an omitted description is sent empty on create and
+    # left out on update, where it keeps the tenant value.
+    for key in UNCLEARABLE_TEXT_FIELDS:
+        if not payload[key]:
+            del payload[key]
+    return payload

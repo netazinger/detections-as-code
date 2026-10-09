@@ -66,6 +66,7 @@ requests opened from forks validate under the same rules.
 - Every sync to an existing detection is recorded as a new version in the Vega UI's version-history pane.
 - Reverting a "create" PR through `git revert` removes the detection from the tenant. Reverting a "delete" PR fails: the id is already reserved.
 - The reconciler issues API calls in batches of up to 100 detections and maps the API's per-detection results back to each YAML, so the run summary names the rule that failed. Each batch is a single transaction, though: one invalid detection rolls back every other detection in the same chunk, which the summary reports as `rolled back: ...`. Whole-batch transport failures (API unreachable) are tagged with a `batch API error:` prefix instead.
+- `logicDescription` and `attackScenario` cannot be cleared through the API: an empty string is rejected on update. The reconciler omits them from the update when the YAML has no value, so the tenant text stays; replace it rather than deleting the key.
 - `groupingField` and `groupingThreshold` cannot be cleared through the API - an omitted value and an explicit null are indistinguishable to it. Removing the keys from a YAML leaves the tenant values in place; the reconciler stops tracking them rather than looping on a diff it cannot resolve.
 - No-op updates are skipped: the reconciler diffs each YAML against the current Vega state and silently drops detections already in the target shape. This avoids resetting dynamic schedules on unchanged rules and keeps the run-summary signal-to-noise ratio high.
 
