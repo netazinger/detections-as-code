@@ -7,6 +7,7 @@ Mapping:
   state  -> DetectionState enum value
   severity -> DetectionSeverity enum value (accepts int 1-4 or LOW|MEDIUM|HIGH|CRITICAL)
   mode   -> DetectionMode enum value (alert|evidence|monitor, defaults to alert)
+  skillIds -> skillIds, the triage/investigation skills attached to the detection
 
 Omitted fields:
   mitreTactics    : derived server-side from mitreTechniques.
@@ -39,6 +40,7 @@ from .consts import (
     MANAGED_TAG,
     REMOVED_FIELDS,
     SEVERITY_MAP,
+    SKILL_IDS_MAX,
     UNCLEARABLE_TEXT_FIELDS,
     VALID_STATES,
     VALID_MODES,
@@ -224,6 +226,25 @@ def _validate_entity_fields(detection: dict[str, Any], ext_id: str) -> None:
                 )
 
 
+def _validate_skill_ids(detection: dict[str, Any], ext_id: str) -> None:
+    values = _ensure_list(detection.get("skillIds"))
+    if len(values) > SKILL_IDS_MAX:
+        raise ValueError(
+            f"{ext_id}: 'skillIds' accepts at most {SKILL_IDS_MAX} entries "
+            f"(got {len(values)})"
+        )
+    seen: set[str] = set()
+    for i, value in enumerate(values):
+        if not isinstance(value, str) or not value.strip():
+            raise ValueError(
+                f"{ext_id}: 'skillIds[{i}]' must be a non-empty string "
+                f"(a skill ID from the Vega skills library)"
+            )
+        if value in seen:
+            raise ValueError(f"{ext_id}: 'skillIds[{i}]' {value!r} is duplicated")
+        seen.add(value)
+
+
 def _validate_mitre_techniques(detection: dict[str, Any], ext_id: str) -> None:
     for i, value in enumerate(_ensure_list(detection.get("mitreTechniques"))):
         if not isinstance(value, str) or not _MITRE_TECHNIQUE_RE.match(value):
@@ -383,6 +404,7 @@ def yaml_to_create_input(detection: dict[str, Any]) -> dict[str, Any]:
 
     _validate_mitre_techniques(detection, ext_id)
     _validate_entity_fields(detection, ext_id)
+    _validate_skill_ids(detection, ext_id)
     _validate_grouping(detection, ext_id)
 
     payload = {
@@ -405,6 +427,7 @@ def yaml_to_create_input(detection: dict[str, Any]) -> dict[str, Any]:
         ),
         "actorFields": _ensure_list(detection.get("actorFields")),
         "targetFields": _ensure_list(detection.get("targetFields")),
+        "skillIds": _ensure_list(detection.get("skillIds")),
         "tags": [MANAGED_TAG],
         "cells": cells,
     }

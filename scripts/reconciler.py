@@ -205,6 +205,11 @@ def _is_no_op_update(
     for f in _UPDATE_DIFF_ORDERED_FIELDS:
         if (payload.get(f) or []) != (vega_state.get(f) or []):
             return False
+    # Vega returns the attached skills as objects and drops any skill that was
+    # deleted since, so a YAML still naming one keeps diffing until it is fixed.
+    vega_skill_ids = [s["id"] for s in vega_state.get("skills") or []]
+    if sorted(payload.get("skillIds") or []) != sorted(vega_skill_ids):
+        return False
     # Vega reports a disabled window as either null or 0.
     if (payload.get("deduplicationWindowSeconds") or 0) != (
         vega_state.get("deduplicationWindowSeconds") or 0

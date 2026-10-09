@@ -55,6 +55,7 @@ requests opened from forks validate under the same rules.
 - `logicDescription`: 2-4 sentences documenting the query's match conditions in mechanical terms. Identify the data source, the event types selected, and the fields under evaluation. Restrict the content to what the query does.
 - `attackScenario`: 2-4 sentences written from the adversary's perspective. State the attacker's objective and explain how the matched events advance it. Restrict the content to threat-model reasoning.
 - The two fields are intentionally distinct: `logicDescription` answers "what does the rule match?", `attackScenario` answers "why does the match indicate malicious activity?". Conflating the two weakens both.
+- `skillIds`: only IDs of `TRIAGE` or `INVESTIGATION` skills that exist in the tenant, at most 20. The list is authoritative on every sync, so an empty list detaches skills attached in the UI. Must be empty when `mode` is `evidence` or `monitor`.
 - `mitreTechniques`: list the most specific applicable subtechnique only. Including both `T1078` and `T1078.004` is redundant.
 - Avoid em-dashes; the customer-facing tone is plain.
 - Do not add `mitreTactics`, `dataSourcesIds`, or `tags` to the YAML; these are derived server-side or managed through the UI. The sync adds the `detection-as-code` tag itself and preserves the others.

@@ -101,6 +101,7 @@ Operational fields (`state`, `frequencyCron`, `lookBackSeconds`) are required by
 | `groupingThreshold` | int | `10` | Row count in one run that activates burst protection. Range 2-100. Applies with or without `groupingField`. |
 | `actorFields` | list[string] | `[]` | Priority-ordered normalized field names used to extract the alert's Actor, max 5. Empty uses Vega's per-data-type defaults. |
 | `targetFields` | list[string] | `[]` | Priority-ordered normalized field names used to extract the alert's Target, max 5. Empty uses Vega's per-data-type defaults. |
+| `skillIds` | list[string] | `[]` | IDs of `TRIAGE` or `INVESTIGATION` skills Vega loads when triaging this detection's alerts, max 20. The list is authoritative: an empty list detaches skills added in the UI. Must stay empty for `evidence` and `monitor` detections. |
 
 `groupingFields` and `groupingDurationSeconds` were removed from the detection API and are rejected by the sync rather than remapped. `groupingDurationSeconds` becomes `deduplicationWindowSeconds`; `groupingFields` has no single successor and resolves to either `deduplicationFields` or `groupingField` depending on what you meant. See [`docs/fields.md`](docs/fields.md#two-ways-to-reduce-alert-volume).
 

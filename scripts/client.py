@@ -193,6 +193,7 @@ class VegaClient:
               actorFields
               targetFields
               tags
+              skills { id }
               createdBy { principalType }
               cells { name query trigger }
             }

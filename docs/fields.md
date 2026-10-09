@@ -124,9 +124,10 @@ escalation.
   - `evidence` - alerts skip AI triage; they are escalated only when correlation places them in an incident
   - `monitor` - alerts are recorded only; they skip triage and correlation and never create or join an incident
 - **Note:** `evidence` and `monitor` detections cannot carry triage skills or
-  "Always escalate to incident". Those are UI-managed, so clear them in the
-  Vega UI before switching a detection away from `alert`, or the update is
-  rejected and rolls back its batch.
+  "Always escalate to incident". Leave `skillIds` empty for them, and clear
+  "Always escalate to incident" in the Vega UI (it is UI-managed) before
+  switching a detection away from `alert`, or the update is rejected and
+  rolls back its batch.
 - **Note:** the key was briefly called `type` with a `signal` value in the API. The
   sync rejects `type` so a stale YAML does not silently stay on alert.
 - **Note:** a change of mode on an existing detection is pushed on the next
@@ -238,6 +239,28 @@ perspective to answer "why does this match indicate malicious activity?".
 
 ```yaml
 attackScenario: "An adversary with stolen AWS root credentials logs in to the console to perform privileged actions outside normal scoped-IAM access patterns. Root logins are exceedingly rare in healthy environments, so any root login warrants investigation."
+```
+
+### `skillIds` - optional, list of strings, default `[]`
+
+Skills from the Vega skills library that Vega loads when it triages the
+alerts this detection produces.
+
+- **Type:** list of strings
+- **Required:** no
+- **Default:** `[]`, no skills attached
+- **Constraints:** at most 20 IDs, no duplicates. Each must be the ID of a
+  skill that exists in your tenant and whose category is `TRIAGE` or
+  `INVESTIGATION`; the sync batch is rejected otherwise. Copy the ID from
+  the skill's page in the Vega UI or from the `getSkills` API.
+- **Note:** the YAML is the full list. Omitting the key or passing `[]`
+  detaches every skill, including skills attached in the Vega UI.
+- **Note:** `evidence` and `monitor` detections cannot carry skills; keep
+  the list empty for them.
+
+```yaml
+skillIds:
+  - "019e4c2b-7a10-7d3e-9c1f-2b6a8e0f4d11"
 ```
 
 ### `references` - optional, list of strings, default `[]`
