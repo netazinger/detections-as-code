@@ -296,7 +296,7 @@ python -m scripts.sync \
 | Pause a detection while keeping its id reserved | Set `state: "disabled"` and merge. |
 | Validate a tuning change against production data before promoting | Set `state: "test_mode"` and merge. The resulting alerts are isolated from incident correlation. |
 | Permanently retire a detection | Delete the YAML file. The next sync removes it from the tenant. The `id` remains reserved; any rebuild requires a new UUID. |
-| Bring a detection built in the Vega UI under the repository | Create a YAML whose `id` is the detection's `externalId` (shown in the UI and returned by the API). The next sync updates it in place and tags it `detection-as-code`; from then on it is managed like any other YAML. |
+| Bring a detection built in the Vega UI under the repository | Create a YAML whose `id` is the detection's `externalId` (shown in the UI and returned by the API). The next sync updates it in place and tags it `detection-as-code`; from then on it is managed like any other YAML. This works for custom detections only: a YAML whose `id` points at a Vega library detection fails the sync before anything is written. |
 | Roll back a change | `git revert` the offending commit. Reverting a "create" PR removes the detection from the tenant; reverting a "delete" PR fails because the `id` is already reserved - generate a new id instead. |
 | Pause repository-wide syncing | Disable the `Sync Detections to Vega` workflow under repo Settings -> Actions. |
 

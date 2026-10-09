@@ -63,6 +63,7 @@ requests opened from forks validate under the same rules.
 
 ## Behavioural notes
 
+- A YAML whose `id` matches a Vega library detection fails the plan before any API write; library detections are never updated or deleted from here.
 - The sync only deletes detections that carry the `detection-as-code` tag and were not created by the Vega library. Library detections and rules built in the UI show up as `unmanaged` in the plan and are never touched, so a first sync into a populated tenant is safe.
 - `id` is reserved permanently in the tenant after first sync. Deleting the YAML removes the detection but does not free the id.
 - Every sync to an existing detection is recorded as a new version in the Vega UI's version-history pane.

@@ -243,6 +243,12 @@ def build_plan(
         if current is None:
             plan.creates.append(yaml_to_create_input(ydet))
             continue
+        if _is_library(current):
+            raise ValueError(
+                f"{ext_id}: this id belongs to the Vega library detection "
+                f"{current.get('name')!r}. Library detections are managed in "
+                f"the Vega UI, not from this repository; pick a new id"
+            )
         update_payload = yaml_to_update_input(ydet)
         if _is_managed(current):
             if _is_no_op_update(update_payload, current):
