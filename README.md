@@ -239,7 +239,7 @@ The sync workflow writes its result to the GitHub Actions **Summary** tab. The h
 ## ✅ Detection sync — 12 ok, 0 failed (creates=2 updates=3 deletes=0 no_op=7)
 ```
 
-Below it is a per-detection table with one row per action (create / update / delete / set_state):
+Below it is a per-detection table with one row per action (create / update / delete):
 
 ```
 ┏━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┓
@@ -285,7 +285,7 @@ python -m scripts.sync \
   --dry-run
 ```
 
-`--dry-run` prints the plan (creates / updates / deletes / no-op skipped) and exits without modifying tenant state. `--no-deletes` permits creates, updates, and state changes but skips the delete step.
+`--dry-run` prints the plan (creates / updates / deletes / no-op skipped) and exits without modifying tenant state. `--no-deletes` permits creates and updates but skips the delete step.
 
 ## Disable vs delete vs revert
 

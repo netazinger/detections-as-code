@@ -254,18 +254,6 @@ class VegaClient:
             "updateDetections"
         ]
 
-    def set_detections_state(
-        self, detection_ids: list[str], state: str
-    ) -> dict[str, Any]:
-        query = """
-        mutation SetDetectionsState($input: SetDetectionsStateInput!) {
-          setDetectionsState(input: $input) { ids }
-        }
-        """
-        return self._execute(
-            query, {"input": {"ids": detection_ids, "state": state}}
-        )["setDetectionsState"]
-
     def delete_detection(self, detection_id: str) -> dict[str, Any]:
         query = """
         mutation DeleteDetection($input: DeleteDetectionInput!) {

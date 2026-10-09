@@ -389,6 +389,7 @@ def yaml_to_create_input(detection: dict[str, Any]) -> dict[str, Any]:
         "frequencyCron": frequency,
         "lookBackSeconds": lookback_raw,
         "mode": _mode_to_enum(detection.get("mode")).value,
+        "state": _state_to_enum(detection.get("state")).value,
         "mitreTechniques": _ensure_list(detection.get("mitreTechniques")),
         "logicDescription": detection.get("logicDescription") or "",
         "attackScenario": detection.get("attackScenario") or "",
@@ -438,12 +439,4 @@ def create_only_warnings(detection: dict[str, Any]) -> list[str]:
 
 
 def yaml_to_update_input(detection: dict[str, Any]) -> dict[str, Any]:
-    create = yaml_to_create_input(detection)
-    return {
-        **create,
-        "state": _state_to_enum(detection.get("state")).value,
-    }
-
-
-def yaml_state(detection: dict[str, Any]) -> DetectionState:
-    return _state_to_enum(detection.get("state"))
+    return yaml_to_create_input(detection)
