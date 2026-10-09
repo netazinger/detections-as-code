@@ -57,11 +57,12 @@ requests opened from forks validate under the same rules.
 - The two fields are intentionally distinct: `logicDescription` answers "what does the rule match?", `attackScenario` answers "why does the match indicate malicious activity?". Conflating the two weakens both.
 - `mitreTechniques`: list the most specific applicable subtechnique only. Including both `T1078` and `T1078.004` is redundant.
 - Avoid em-dashes; the customer-facing tone is plain.
-- Do not add `mitreTactics`, `dataSourcesIds`, or `tags` to the YAML; these are derived server-side or managed through the UI.
+- Do not add `mitreTactics`, `dataSourcesIds`, or `tags` to the YAML; these are derived server-side or managed through the UI. The sync adds the `detection-as-code` tag itself and preserves the others.
 - For exclusions, append `where ... !=` clauses inline. Multi-cell is supported but should be reserved for genuine correlations.
 
 ## Behavioural notes
 
+- The sync only deletes detections that carry the `detection-as-code` tag and were not created by the Vega library. Library detections and rules built in the UI show up as `unmanaged` in the plan and are never touched, so a first sync into a populated tenant is safe.
 - `id` is reserved permanently in the tenant after first sync. Deleting the YAML removes the detection but does not free the id.
 - Every sync to an existing detection is recorded as a new version in the Vega UI's version-history pane.
 - Reverting a "create" PR through `git revert` removes the detection from the tenant. Reverting a "delete" PR fails: the id is already reserved.

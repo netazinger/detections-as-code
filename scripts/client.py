@@ -192,6 +192,8 @@ class VegaClient:
               groupingThreshold
               actorFields
               targetFields
+              tags
+              createdBy { principalType }
               cells { name query trigger }
             }
             total

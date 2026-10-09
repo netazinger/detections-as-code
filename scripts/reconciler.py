@@ -21,7 +21,11 @@ from typing import Any, Callable, Iterable, Literal
 import yaml
 
 from .client import VegaAPIError, VegaClient
-from .consts import UNCLEARABLE_TEXT_FIELDS
+from .consts import (
+    LIBRARY_PRINCIPAL_TYPE,
+    MANAGED_TAG,
+    UNCLEARABLE_TEXT_FIELDS,
+)
 from .translator import (
     frequency_interval_seconds,
     yaml_to_create_input,
@@ -40,13 +44,15 @@ class Plan:
     updates: list[dict[str, Any]] = field(default_factory=list)
     deletes: list[dict[str, Any]] = field(default_factory=list)
     no_op_updates: int = 0
+    unmanaged: int = 0
 
     def summary(self) -> str:
         return (
             f"creates={len(self.creates)} "
             f"updates={len(self.updates)} "
             f"deletes={len(self.deletes)} "
-            f"no_op_skipped={self.no_op_updates}"
+            f"no_op_skipped={self.no_op_updates} "
+            f"unmanaged_ignored={self.unmanaged}"
         )
 
 
@@ -228,20 +234,37 @@ def build_plan(
     plan = Plan()
 
     for ext_id, ydet in yaml_by_id.items():
-        if ext_id in vega_by_external_id:
-            update_payload = yaml_to_update_input(ydet)
-            if _is_no_op_update(update_payload, vega_by_external_id[ext_id]):
+        current = vega_by_external_id.get(ext_id)
+        if current is None:
+            plan.creates.append(yaml_to_create_input(ydet))
+            continue
+        update_payload = yaml_to_update_input(ydet)
+        if _is_managed(current):
+            if _is_no_op_update(update_payload, current):
                 plan.no_op_updates += 1
                 continue
-            plan.updates.append(update_payload)
         else:
-            plan.creates.append(yaml_to_create_input(ydet))
+            update_payload["tags"] = [*(current.get("tags") or []), MANAGED_TAG]
+        plan.updates.append(update_payload)
 
     for ext_id, vdet in vega_by_external_id.items():
-        if ext_id not in yaml_by_id:
+        if ext_id in yaml_by_id:
+            continue
+        if _is_managed(vdet) and not _is_library(vdet):
             plan.deletes.append(vdet)
+        else:
+            plan.unmanaged += 1
 
     return plan
+
+
+def _is_managed(vega_detection: dict[str, Any]) -> bool:
+    return MANAGED_TAG in (vega_detection.get("tags") or [])
+
+
+def _is_library(vega_detection: dict[str, Any]) -> bool:
+    created_by = vega_detection.get("createdBy") or {}
+    return created_by.get("principalType") == LIBRARY_PRINCIPAL_TYPE
 
 
 def _format_errors(errors: list[dict[str, Any]]) -> str:

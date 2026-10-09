@@ -252,6 +252,7 @@ Below it is a per-detection table with one row per action (create / update / del
 
 - `creates` / `updates` / `deletes` count the actions actually planned.
 - `no_op` counts detections whose YAML matched the current Vega state exactly - skipped to avoid resetting dynamic schedules.
+- `unmanaged` counts detections in the tenant that have no YAML here and do not carry the `detection-as-code` tag: library detections and rules built in the Vega UI. The sync leaves them alone.
 - The Error column shows per-detection validation errors verbatim from the API.
 - A whole-batch transport failure surfaces as up to 100 rows with the same `batch API error: ...` text; that indicates a tenant or network issue, not a detection-level failure.
 - A `rolled back: ...` error means that detection was valid but was not written, because another detection in the same 100-item chunk failed validation and the API applies each chunk as one transaction. Fix the named offender and re-run; nothing partial was left behind.
@@ -294,6 +295,7 @@ python -m scripts.sync \
 | Pause a detection while keeping its id reserved | Set `state: "disabled"` and merge. |
 | Validate a tuning change against production data before promoting | Set `state: "test_mode"` and merge. The resulting alerts are isolated from incident correlation. |
 | Permanently retire a detection | Delete the YAML file. The next sync removes it from the tenant. The `id` remains reserved; any rebuild requires a new UUID. |
+| Bring a detection built in the Vega UI under the repository | Create a YAML whose `id` is the detection's `externalId` (shown in the UI and returned by the API). The next sync updates it in place and tags it `detection-as-code`; from then on it is managed like any other YAML. |
 | Roll back a change | `git revert` the offending commit. Reverting a "create" PR removes the detection from the tenant; reverting a "delete" PR fails because the `id` is already reserved - generate a new id instead. |
 | Pause repository-wide syncing | Disable the `Sync Detections to Vega` workflow under repo Settings -> Actions. |
 
@@ -358,7 +360,7 @@ Canonical Vega platform documentation:
 
 ## Limitations (v1)
 
-- **Custom detections only.** This template manages tenant-custom detections authored as YAML in this repository. Vega's built-in library detections are not in scope; manage those through the Vega UI.
+- **Custom detections only.** This template manages tenant-custom detections authored as YAML in this repository. Vega's built-in library detections are not in scope; manage those through the Vega UI. The sync tells its own detections apart by the `detection-as-code` tag it adds to each one, and it never deletes a detection without that tag, so adopting the repository in a tenant that already has library or UI-built detections does not remove them. Detections synced by a version of this template that predates the tag are re-tagged on the first sync after upgrading; one whose YAML was already deleted before that sync stays in the tenant and must be removed in the UI.
 - **No drift detection.** The sync workflow runs on pushes to `main` that touch `detections/**` or `scripts/**`, and on manual dispatch. Changes made to a synced detection through the Vega UI between repository syncs persist silently and are reverted to the YAML state on the next sync. There is no warning, alert, or reconciliation report for UI-side edits. Treat the repository as the single source of truth, and run the **Sync ALL detections** workflow periodically to force-reconcile if UI edits are suspected.
 - Lookups and data sources must already exist in the tenant.
 - A merge that fails partway through leaves the tenant in a partially-applied state. Re-running the workflow after fixing the offending YAML converges (idempotent).

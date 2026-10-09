@@ -11,7 +11,8 @@ Mapping:
 Omitted fields:
   mitreTactics    : derived server-side from mitreTechniques.
   dataSourcesIds  : derived from the KQL table selector.
-  tags            : UI-managed.
+  tags            : UI-managed, except the `detection-as-code` marker the sync
+                    adds so it can tell its own detections from the rest.
 
 Validation here mirrors the server's own rules (see consts.py) so a bad value
 fails the PR check rather than the post-merge sync, where it would roll back
@@ -35,6 +36,7 @@ from .consts import (
     LOOKBACK_SECONDS_MAX,
     MANDATORY_FIELDS,
     NAME_MAX_LEN,
+    MANAGED_TAG,
     REMOVED_FIELDS,
     SEVERITY_MAP,
     UNCLEARABLE_TEXT_FIELDS,
@@ -403,6 +405,7 @@ def yaml_to_create_input(detection: dict[str, Any]) -> dict[str, Any]:
         ),
         "actorFields": _ensure_list(detection.get("actorFields")),
         "targetFields": _ensure_list(detection.get("targetFields")),
+        "tags": [MANAGED_TAG],
         "cells": cells,
     }
     # Both grouping fields are omitted unless the YAML sets them. The API reads
@@ -447,4 +450,7 @@ def yaml_to_update_input(detection: dict[str, Any]) -> dict[str, Any]:
     for key in UNCLEARABLE_TEXT_FIELDS:
         if not payload[key]:
             del payload[key]
+    # The reconciler re-adds tags from the tenant state when the marker is
+    # missing; sending the bare marker here would wipe UI-managed tags.
+    del payload["tags"]
     return payload

@@ -57,6 +57,12 @@ SEVERITY_MAP: dict[Any, str] = {
 # cannot tell which of the two a YAML will become.
 NAME_MAX_LEN: int = 200
 UNCLEARABLE_TEXT_FIELDS: tuple[str, ...] = ("logicDescription", "attackScenario")
+
+# Tag the sync puts on every detection it creates or updates. Deletes are
+# limited to detections carrying it, so library detections and rules built in
+# the Vega UI are never removed by a sync that does not know them.
+MANAGED_TAG: str = "detection-as-code"
+LIBRARY_PRINCIPAL_TYPE: str = "vega_library"
 FREQUENCY_INTERVAL_SECONDS_MIN: int = 60
 FREQUENCY_INTERVAL_SECONDS_MAX: int = 31 * 24 * 3600
 LOOKBACK_SECONDS_MAX: int = FREQUENCY_INTERVAL_SECONDS_MAX

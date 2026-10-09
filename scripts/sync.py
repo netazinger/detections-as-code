@@ -139,6 +139,7 @@ def _plan_table(plan: Plan) -> Table:
     t.add_row("[yellow]update[/]", str(len(plan.updates)))
     t.add_row("[red]delete[/]", str(len(plan.deletes)))
     t.add_row("[dim]no-op skipped[/]", str(plan.no_op_updates))
+    t.add_row("[dim]unmanaged ignored[/]", str(plan.unmanaged))
     return t
 
 
@@ -194,7 +195,8 @@ def _write_step_summary(report: SyncReport, plan: Plan) -> None:
         f"## {icon} Detection sync — {len(report.succeeded)} ok, "
         f"{len(report.failed)} failed "
         f"(creates={len(plan.creates)} updates={len(plan.updates)} "
-        f"deletes={len(plan.deletes)} no_op={plan.no_op_updates})"
+        f"deletes={len(plan.deletes)} no_op={plan.no_op_updates} "
+        f"unmanaged={plan.unmanaged})"
     )
     body = ""
     if report.results:

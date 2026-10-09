@@ -453,7 +453,7 @@ that reference data sources that are not connected.
 |---|---|
 | `mitreTactics` | Derived server-side from `mitreTechniques`. |
 | `dataSourcesIds` | Derived from the table selector in the KQL itself (e.g. `@CloudTrail`). |
-| `tags` | Managed in the Vega UI. |
+| `tags` | Managed in the Vega UI. The sync adds one tag of its own, `detection-as-code`, to every detection it creates or updates and keeps the others as they are. Only detections carrying that tag are ever deleted by a sync. |
 
 ## What the PR-time lint actually checks
 
